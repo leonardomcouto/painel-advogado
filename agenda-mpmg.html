@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda MPMG - Uberlândia</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #031535;
+            color: #ffffff;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1rem;
+            color: #d1d5db;
+        }
+
+        .controls-container {
+            max-width: 1200px;
+            margin: 30px auto 20px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-menu {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #e5e7eb;
+            color: #111827;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-menu:hover {
+            background-color: #d1d5db;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #031535;
+        }
+
+        .grid-container {
+            max-width: 1200px;
+            margin: 0 auto 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .card h2 {
+            font-size: 1.15rem;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .card .promotor {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .info-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .info-line a {
+            color: #374151;
+            text-decoration: none;
+        }
+
+        .info-line a:hover {
+            text-decoration: underline;
+        }
+
+        .obs-box {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #e5e7eb;
+            font-size: 0.85rem;
+            color: #4b5563;
+            font-style: italic;
+        }
+
+        .status-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Agenda MPMG</h1>
+        <p>Contato das Promotorias de Justiça (MPMG) em Uberlândia</p>
+    </header>
+
+    <div class="controls-container">
+        <a href="index.html" class="btn-menu">&larr; Menu</a>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por promotoria, promotor, telefone, e-mail..." onkeyup="filtrarCards()">
+    </div>
+
+    <main class="grid-container" id="cardsGrid">
+        <div class="status-msg" id="statusMsg">Carregando dados da planilha...</div>
+    </main>
+
+    <script>
+        // Cole abaixo a URL do CSV gerado no "Publicar na Web" da planilha do MPMG
+        const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS3scJ4bpkbMmpw9MrPvqndAFFlgdyYBEKdkDcZzfpiojglUIHTEvro_hUNln5dIHQApTLRauwQ1jXK/pub?gid=741619396&single=true&output=csv';
+
+        async function carregarDados() {
+            const container = document.getElementById('cardsGrid');
+            const statusMsg = document.getElementById('statusMsg');
+
+            try {
+                const resposta = await fetch(URL_PLANILHA);
+                const textoCsv = await resposta.text();
+                
+                const linhas = processarCSV(textoCsv);
+
+                if (linhas.length <= 1) {
+                    statusMsg.innerText = "Nenhum dado encontrado na planilha.";
+                    return;
+                }
+
+                container.innerHTML = ''; // Limpa a mensagem de carregando
+
+                // Mapeamento baseado nas colunas fornecidas:
+                // 0: id | 1: nome unidade | 2: promotor responsável | 3: telefone(s) | 4: email_1 | 5: email_2 | 6: observação
+                for (let i = 1; i < linhas.length; i++) {
+                    const colunas = linhas[i];
+                    
+                    const nomeUnidade = colunas[1] || '';
+                    const promotorResp = colunas[2] || '';
+                    const telefonesBrutos = colunas[3] || '';
+                    const email1 = colunas[4] || '';
+                    const email2 = colunas[5] || '';
+                    const observacao = colunas[6] || '';
+
+                    if (!nomeUnidade && !promotorResp) continue;
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    let htmlCard = `<h2>${nomeUnidade}</h2>`;
+                    
+                    if (promotorResp) {
+                        htmlCard += `<div class="promotor">Promotor(a): ${promotorResp}</div>`;
+                    }
+
+                    // Processamento dos telefones (separados por vírgula, barra ou ponto e vírgula)
+                    if (telefonesBrutos) {
+                        const listaTelefones = telefonesBrutos.split(/[/;,]/).map(t => t.trim()).filter(t => t !== '');
+                        listaTelefones.forEach(tel => {
+                            htmlCard += `<div class="info-line"><span>📞</span> ${tel}</div>`;
+                        });
+                    }
+
+                    if (email1) {
+                        htmlCard += `<div class="info-line"><span>✉️</span> <a href="mailto:${email1}">${email1}</a></div>`;
+                    }
+
+                    if (email2) {
+                        htmlCard += `<div class="info-line"><span>✉️</span> <a href="mailto:${email2}">${email2}</a></div>`;
+                    }
+
+                    if (observacao) {
+                        htmlCard += `<div class="obs-box"><strong>Obs:</strong> ${observacao}</div>`;
+                    }
+
+                    card.innerHTML = htmlCard;
+                    container.appendChild(card);
+                }
+
+            } catch (erro) {
+                console.error("Erro ao carregar os dados:", erro);
+                statusMsg.innerText = "Erro ao carregar as informações. Verifique a configuração da planilha.";
+            }
+        }
+
+        function processarCSV(texto) {
+            const linhas = [];
+            let linhaAtual = [];
+            let campoAtual = '';
+            let dentroDeAspas = false;
+
+            for (let i = 0; i < texto.length; i++) {
+                const char = texto[i];
+                const proximoChar = texto[i + 1];
+
+                if (char === '"') {
+                    if (dentroDeAspas && proximoChar === '"') {
+                        campoAtual += '"';
+                        i++;
+                    } else {
+                        dentroDeAspas = !dentroDeAspas;
+                    }
+                } else if (char === ',' && !dentroDeAspas) {
+                    linhaAtual.push(campoAtual.trim());
+                    campoAtual = '';
+                } else if ((char === '\r' || char === '\n') && !dentroDeAspas) {
+                    if (char === '\r' && proximoChar === '\n') {
+                        i++;
+                    }
+                    linhaAtual.push(campoAtual.trim());
+                    if (linhaAtual.length > 1 || linhaAtual[0] !== '') {
+                        linhas.push(linhaAtual);
+                    }
+                    linhaAtual = [];
+                    campoAtual = '';
+                } else {
+                    campoAtual += char;
+                }
+            }
+
+            if (campoAtual !== '' || linhaAtual.length > 0) {
+                linhaAtual.push(campoAtual.trim());
+                linhas.push(linhaAtual);
+            }
+
+            return linhas;
+        }
+
+        function filtrarCards() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                const textoCard = card.innerText.toLowerCase();
+                card.style.display = textoCard.includes(termo) ? "block" : "none";
+            });
+        }
+
+        carregarDados();
+    </script>
+
+</body>
+</html>
