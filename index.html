@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Advogado de Uberlândia</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #031535;
+            color: #ffffff;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1rem;
+            color: #d1d5db;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px 0;
+            background-color: #031535;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background-color: #0a2558;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Painel do Advogado de Uberlândia</h1>
+        <p>Contatos e ferramentas para auxílio do advogado uberlandense</p>
+    </header>
+
+    <main class="container">
+        
+        <div class="card">
+            <div>
+                <div class="card-icon">🏛️</div>
+                <h2>Agenda TJMG</h2>
+                <p>Contatos e ramais das Varas e Juízes do TJMG Uberlândia.</p>
+            </div>
+            <a href="agenda-tjmg.html" class="btn">Acesso &rarr;</a>
+        </div>
+
+        <div class="card">
+            <div>
+                <div class="card-icon">⚖️</div>
+                <h2>Agenda MPMG</h2>
+                <p>Contato das Promotorias de Justiça (MPMG) em Uberlândia.</p>
+            </div>
+            <a href="agenda-mpmg.html" class="btn">Acesso &rarr;</a>
+        </div>
+
+        <div class="card">
+            <div>
+                <div class="card-icon">🏛️</div>
+                <h2>Escala de Plantão TJMG</h2>
+                <p>Contatos da escala de plantão do TJMG-Uberlândia.</p>
+            </div>
+            <a href="escala-plantao.html" class="btn">Acesso &rarr;</a>
+        </div>
+
+        <div class="card">
+            <div>
+                <div class="card-icon">📅</div>
+                <h2>Calculadora de Prazos</h2>
+                <p>Calculadora de prazos judiciais.</p>
+            </div>
+            <a href="calculadora.html" class="btn">Acesso &rarr;</a>
+        </div>
+
+    </main>
+
+</body>
+</html>
